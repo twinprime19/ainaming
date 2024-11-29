@@ -14,7 +14,7 @@ const Header: React.FC = () => {
           Đặt tên cho Trợ Lý AI của chúng ta nào!
         </h1>
         <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto px-2 sm:px-4 mb-4 sm:mb-6">
-          Bỏ phiếu bằng cách click vào tên mình thích nhé!
+          Đề xuất tên mới, hoặc click vào tên mình thích để bầu chọn nhé!
         </p>
         <CountdownTimer />
       </div>
