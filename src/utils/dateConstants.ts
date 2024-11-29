@@ -1,4 +1,4 @@
-export const VOTING_START = new Date('2024-11-29T09:18:00Z'); // 15:53 Vietnam time
+export const VOTING_START = new Date('2024-12-02T01:00:00Z'); // 8:00 Vietnam time
 export const VOTING_END = new Date('2024-12-06T18:00:00Z');
 
 export const isVotingPeriod = (): boolean => {
