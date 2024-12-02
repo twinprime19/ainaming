@@ -8,30 +8,65 @@ import RankingList from './components/RankingList';
 import NameSubmissionModal from './components/NameSubmissionModal';
 import { containsProfanity } from './utils/profanityFilter';
 import { isVotingPeriod } from './utils/dateConstants';
+import { loadNamesFromSupabase, saveNameToSupabase, updateVoteInSupabase, supabase } from './utils/supabase';
 import { BotName } from './types';
 
 function App() {
-  const [names, setNames] = useState<BotName[]>([
-    { id: '1', text: 'Estella', votes: 1 },
-  ]);
+  const [names, setNames] = useState<BotName[]>([]);
   const [error, setError] = useState<string>('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [pendingSubmission, setPendingSubmission] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadInitialData = async () => {
+      const initialNames = await loadNamesFromSupabase();
+      setNames(initialNames);
+      setIsLoading(false);
+    };
+
+    loadInitialData();
+
+    const subscription = supabase
+      .channel('bot_names_changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'bot_names' },
+        (payload) => {
+          setNames(currentNames => {
+            const updatedNames = [...currentNames];
+            const index = updatedNames.findIndex(n => n.id === payload.new.id);
+            
+            if (index !== -1) {
+              updatedNames[index] = payload.new;
+            } else {
+              updatedNames.push(payload.new);
+            }
+            
+            return updatedNames.sort((a, b) => b.votes - a.votes);
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const handleNewName = (name: string) => {
     if (!isVotingPeriod()) {
-      setError('Cuộc bỏ phiếu chưa bắt đầu, hoặc đã kết thúc!');
+      setError('Voting has not started yet or has already ended!');
       return;
     }
 
     if (containsProfanity(name)) {
-      setError('Xin chỉ đề xuất những tên phù hợp!');
+      setError('Please suggest appropriate names only!');
       return;
     }
 
     if (names.some(n => n.text.toLowerCase() === name.toLowerCase())) {
-      setError('Tên này có người đề xuất rồi, bạn hãy click vào tên đó để bỏ phiếu!');
+      setError('This name has already been suggested. Click it to vote!');
       return;
     }
 
@@ -39,31 +74,45 @@ function App() {
     setIsModalOpen(true);
   };
 
-  const handleSubmitterName = (submitterName: string) => {
+  const handleSubmitterName = async (submitterName: string) => {
     if (pendingSubmission) {
-      setNames(prev => [...prev, {
+      const newName: BotName = {
         id: Date.now().toString(),
         text: pendingSubmission,
         votes: 1,
         submitter: submitterName
-      }]);
+      };
+
+      const success = await saveNameToSupabase(newName);
+      if (!success) {
+        setError('Failed to save the name. Please try again.');
+        return;
+      }
+
       setIsModalOpen(false);
       setPendingSubmission(null);
       setError('');
     }
   };
 
-  const handleVote = useCallback((id: string) => {
+  const handleVote = useCallback(async (id: string) => {
     if (!isVotingPeriod()) {
-      setError('Chưa bỏ phiếu được. Cuộc thi chưa bắt đầu, hoặc đã kết thúc!');
+      setError('Voting has not started yet or has already ended!');
       return;
     }
 
-    setNames(prev => prev.map(name =>
-      name.id === id ? { ...name, votes: name.votes + 1 } : name
-    ));
+    const nameToUpdate = names.find(name => name.id === id);
+    if (nameToUpdate) {
+      const updatedVotes = nameToUpdate.votes + 1;
+      const success = await updateVoteInSupabase(id, updatedVotes);
+      
+      if (!success) {
+        setError('Failed to update vote. Please try again.');
+        return;
+      }
+    }
     setError('');
-  }, []);
+  }, [names]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -71,6 +120,14 @@ function App() {
     }, 3000);
     return () => clearTimeout(timer);
   }, [error]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50">

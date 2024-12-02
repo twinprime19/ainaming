@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TagCloud } from 'react-tagcloud';
 import { BotName } from '../types';
 import { useSound } from '../hooks/useSound';
+import { useVoteThrottle } from '../hooks/useVoteThrottle';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface NameCloudProps {
@@ -13,6 +14,7 @@ const NameCloud: React.FC<NameCloudProps> = ({ names, onVote }) => {
   const [hoveredTag, setHoveredTag] = useState<string | null>(null);
   const [lastVotedId, setLastVotedId] = useState<string | null>(null);
   const { playVoteSound } = useSound();
+  const { isThrottled, throttledVote } = useVoteThrottle(1000);
 
   const data = names.map(name => ({
     value: name.text,
@@ -23,11 +25,13 @@ const NameCloud: React.FC<NameCloudProps> = ({ names, onVote }) => {
   const handleVote = (tag: any) => {
     const name = names.find(n => n.text === tag.value);
     if (name) {
-      onVote(name.id);
-      setLastVotedId(name.id);
-      playVoteSound();
-      
-      setTimeout(() => setLastVotedId(null), 1000);
+      throttledVote(() => {
+        onVote(name.id);
+        setLastVotedId(name.id);
+        playVoteSound();
+        
+        setTimeout(() => setLastVotedId(null), 1000);
+      });
     }
   };
 
@@ -38,7 +42,7 @@ const NameCloud: React.FC<NameCloudProps> = ({ names, onVote }) => {
         maxSize={32}
         tags={data}
         onClick={handleVote}
-        className="cursor-pointer select-none"
+        className={`cursor-pointer select-none ${isThrottled ? 'pointer-events-none' : ''}`}
         renderer={(tag: any, size: number, color: string) => {
           const isHovered = hoveredTag === tag.key;
           const isLastVoted = lastVotedId === tag.key;
@@ -67,6 +71,7 @@ const NameCloud: React.FC<NameCloudProps> = ({ names, onVote }) => {
                   inline-block relative z-10 cursor-pointer
                   transition-colors duration-300
                   ${isHovered ? 'text-indigo-600' : ''}
+                  ${isThrottled ? 'opacity-50' : ''}
                 `}
                 style={{
                   fontSize: `${size}px`,
