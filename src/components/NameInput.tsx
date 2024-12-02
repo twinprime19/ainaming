@@ -24,7 +24,7 @@ const NameInput: React.FC<NameInputProps> = ({ onSubmit }) => {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Suggest a name..."
+          placeholder="Đề xuất tên nào..."
           className="flex-1 md:flex-none px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           maxLength={30}
         />
@@ -32,7 +32,7 @@ const NameInput: React.FC<NameInputProps> = ({ onSubmit }) => {
           type="submit"
           className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 whitespace-nowrap"
         >
-          Submit
+          Đề xuất
         </button>
       </div>
     </form>

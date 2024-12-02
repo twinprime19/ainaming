@@ -56,17 +56,17 @@ function App() {
 
   const handleNewName = (name: string) => {
     if (!isVotingPeriod()) {
-      setError('Voting has not started yet or has already ended!');
+      setError('Không vote được vì cuộc bỏ phiếu chưa bắt đầu, hay đã kết thúc.');
       return;
     }
 
     if (containsProfanity(name)) {
-      setError('Please suggest appropriate names only!');
+      setError('Hãy đề xuất tên phù hợp!');
       return;
     }
 
     if (names.some(n => n.text.toLowerCase() === name.toLowerCase())) {
-      setError('This name has already been suggested. Click it to vote!');
+      setError('Tên này đã được đề xuất rồi! Hãy vote cho nó!');
       return;
     }
 

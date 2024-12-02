@@ -48,17 +48,17 @@ const CountdownTimer: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center space-y-2">
+    <div className="flex flex-col items-center space-y-2">  
       <div className="flex items-center gap-2 text-gray-600">
         <Clock className="w-5 h-5 animate-pulse" />
-        <span>{isVotingPeriod() ? "Voting ends in:" : "Voting starts in:"}</span>
+        <span>{isVotingPeriod() ? "Bỏ phiếu sẽ kết thúc trong:" : "Bỏ phiếu sẽ bắt đầu trong:"}</span>
       </div>
       <div className="flex gap-4 text-center">
         {[
-          { label: 'Days', value: timeLeft.days },
-          { label: 'Hours', value: timeLeft.hours },
-          { label: 'Minutes', value: timeLeft.minutes },
-          { label: 'Seconds', value: timeLeft.seconds }
+          { label: 'Ngày', value: timeLeft.days },
+          { label: 'Giờ', value: timeLeft.hours },
+          { label: 'Phút', value: timeLeft.minutes },
+          { label: 'Giây', value: timeLeft.seconds }
         ].map(({ label, value }) => (
           <div key={label} className="flex flex-col">
             <span className="text-2xl font-bold text-indigo-600">{padNumber(value)}</span>

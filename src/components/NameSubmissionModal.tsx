@@ -36,10 +36,10 @@ const NameSubmissionModal: React.FC<NameSubmissionModalProps> = ({
           <X className="w-5 h-5" />
         </button>
         <h3 className="text-xl font-bold text-gray-900 mb-4">
-          Almost there!
+          Sẵn sàng nha...
         </h3>
         <p className="text-gray-600 mb-4">
-          You're suggesting the name "{botName}". Please let us know who you are!
+          Bạn đề xuất tên "{botName}". Hãy cho chúng tôi biết tên bạn (để nhận giải thưởng) nha!
         </p>
         <form onSubmit={handleSubmit}>
           <input
@@ -55,7 +55,7 @@ const NameSubmissionModal: React.FC<NameSubmissionModalProps> = ({
             type="submit"
             className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200"
           >
-            Submit
+            Đồng ý!
           </button>
         </form>
       </div>
