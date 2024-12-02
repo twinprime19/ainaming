@@ -137,7 +137,7 @@ const RankingList: React.FC<RankingListProps> = ({ names }) => {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
           <Trophy className="w-5 h-5 text-yellow-500" />
-          Name Race Leaderboard
+          Bảng xếp hạng
         </h2>
         <div className="flex gap-2">
           <button
